@@ -1,282 +1,337 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Device Diagnostics</title>
+  <style>
+    body {
+      font-family: system-ui;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+    button {
+      padding: 12px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background: #22c55e;
+      color: white;
+      margin: 15px;
+      cursor: pointer;
+    }
 
-<title>Device Diagnostics</title>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
 
-<style>
-
-body{
-font-family:system-ui;
-background:#0f172a;
-color:white;
-text-align:center;
-padding:20px;
-}
-
-button{
-padding:12px;
-font-size:18px;
-border:none;
-border-radius:10px;
-background:#22c55e;
-color:white;
-margin:15px;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:15px;
-margin-top:20px;
-}
-
-.card{
-background:#1e293b;
-padding:20px;
-border-radius:12px;
-font-size:16px;
-}
-
-</style>
-
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 16px;
+      min-height: 72px;
+      word-break: break-word;
+    }
+  </style>
 </head>
-
 <body>
-
-<h1>📱 Device Diagnostics</h1>
-
-<button onclick="runFullScan()">🔍 Run Full Scan</button>
-
-<div class="grid">
-
-<div class="card" id="device"></div>
-<div class="card" id="network"></div>
-<div class="card" id="battery"></div>
-<div class="card" id="gps"></div>
-<div class="card" id="motion"></div>
-<div class="card" id="camera"></div>
-<div class="card" id="microphone"></div>
-<div class="card" id="speaker"></div>
-<div class="card" id="cpu"></div>
-<div class="card" id="gpu"></div>
-<div class="card" id="speed"></div>
-
-</div>
-
-<script>
-
-function runFullScan(){
-
-testDevice()
-testNetwork()
-testBattery()
-testGPS()
-testMotion()
-testCamera()
-testMic()
-testSpeaker()
-cpuBenchmark()
-gpuBenchmark()
-speedTest()
-
-}
-
-function testDevice(){
-
-document.getElementById("device").innerHTML =
-"📱 Device<br>"+navigator.userAgent
-
-}
-
-function testNetwork(){
-
-document.getElementById("network").innerHTML =
-"📡 Network<br>"+(navigator.onLine ? "Online":"Offline")
-
-}
-
-function testBattery(){
-
-if(navigator.getBattery){
-
-navigator.getBattery().then(b=>{
-
-function update(){
-
-let percent=Math.round(b.level*100)
-
-let state=b.charging ? "Charging ⚡":"On Battery"
-
-document.getElementById("battery").innerHTML=
-"🔋 Battery<br>"+percent+"% • "+state
-
-}
-
-update()
-
-b.onlevelchange=update
-b.onchargingchange=update
-
-})
-
-}else{
-
-document.getElementById("battery").innerHTML=
-"🔋 Battery<br>Unavailable"
-
-}
-
-}
-
-function testGPS(){
-
-navigator.geolocation.getCurrentPosition(pos=>{
-
-document.getElementById("gps").innerHTML=
-"📍 GPS<br>"+
-pos.coords.latitude+
-"<br>"+
-pos.coords.longitude
-
-})
-
-}
-
-function testMotion(){
-
-if(window.DeviceMotionEvent){
-
-window.addEventListener("devicemotion",e=>{
-
-document.getElementById("motion").innerHTML=
-"🧭 Motion<br>X: "+
-e.acceleration.x
-
-})
-
-}else{
-
-document.getElementById("motion").innerHTML=
-"🧭 Motion<br>Unavailable"
-
-}
-
-}
-
-function testCamera(){
-
-navigator.mediaDevices.getUserMedia({video:true})
-.then(()=>{
-
-document.getElementById("camera").innerHTML=
-"📷 Camera<br>Accessible"
-
-})
-.catch(()=>{
-
-document.getElementById("camera").innerHTML=
-"📷 Camera<br>Blocked"
-
-})
-
-}
-
-function testMic(){
-
-navigator.mediaDevices.getUserMedia({audio:true})
-.then(()=>{
-
-document.getElementById("microphone").innerHTML=
-"🎤 Microphone<br>Accessible"
-
-})
-.catch(()=>{
-
-document.getElementById("microphone").innerHTML=
-"🎤 Microphone<br>Blocked"
-
-})
-
-}
-
-function testSpeaker(){
-
-let audio=new Audio(
-"https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
-)
-
-audio.play()
-
-document.getElementById("speaker").innerHTML=
-"🔊 Speaker<br>Sound played"
-
-}
-
-function cpuBenchmark(){
-
-let start=performance.now()
-
-let total=0
-
-for(let i=0;i<10000000;i++){
-total+=Math.sqrt(i)
-}
-
-let end=performance.now()
-
-document.getElementById("cpu").innerHTML=
-"🧠 CPU Benchmark<br>"+Math.round(end-start)+" ms"
-
-}
-
-function gpuBenchmark(){
-
-let start=performance.now()
-
-let canvas=document.createElement("canvas")
-let ctx=canvas.getContext("2d")
-
-for(let i=0;i<5000;i++){
-
-ctx.fillRect(
-Math.random()*300,
-Math.random()*150,
-5,
-5
-)
-
-}
-
-let end=performance.now()
-
-document.getElementById("gpu").innerHTML=
-"🎮 GPU Benchmark<br>"+Math.round(end-start)+" ms"
-
-}
-
-function speedTest(){
-
-let start=performance.now()
-
-fetch("https://jsonplaceholder.typicode.com/posts")
-.then(r=>r.json())
-.then(()=>{
-
-let end=performance.now()
-
-document.getElementById("speed").innerHTML=
-"📶 Internet Speed<br>"+
-Math.round(end-start)+" ms latency"
-
-})
-
-}
-
-</script>
-
+  <h1>📱 Device Diagnostics</h1>
+
+  <button onclick="runFullScan()">🔍 Run Full Scan</button>
+
+  <div class="grid">
+    <div class="card" id="device"></div>
+    <div class="card" id="network"></div>
+    <div class="card" id="battery"></div>
+    <div class="card" id="gps"></div>
+    <div class="card" id="motion"></div>
+    <div class="card" id="camera"></div>
+    <div class="card" id="microphone"></div>
+    <div class="card" id="speaker"></div>
+    <div class="card" id="cpu"></div>
+    <div class="card" id="gpu"></div>
+    <div class="card" id="speed"></div>
+  </div>
+
+  <script>
+    // Run all tests but isolate failures so one error doesn't stop others.
+    function runFullScan() {
+      const tests = [
+        testDevice,
+        testNetwork,
+        testBattery,
+        testGPS,
+        testMotion,
+        testCamera,
+        testMic,
+        testSpeaker,
+        cpuBenchmark,
+        gpuBenchmark,
+        speedTest,
+      ];
+
+      for (const t of tests) {
+        try {
+          // allow async functions to run (they may return promises)
+          const res = t();
+          if (res instanceof Promise) {
+            res.catch((err) => {
+              console.error("Test error:", err);
+            });
+          }
+        } catch (err) {
+          console.error("Test threw:", err);
+        }
+      }
+    }
+
+    function testDevice() {
+      const el = document.getElementById("device");
+      el.innerHTML = "📱 Device<br>" + (navigator.userAgent || "Unknown");
+    }
+
+    function testNetwork() {
+      const el = document.getElementById("network");
+      el.innerHTML = "📡 Network<br>" + (navigator.onLine ? "Online" : "Offline");
+    }
+
+    function testBattery() {
+      const el = document.getElementById("battery");
+      if (navigator.getBattery) {
+        navigator
+          .getBattery()
+          .then((b) => {
+            function update() {
+              const percent = Math.round((b.level ?? 0) * 100);
+              const state = b.charging ? "Charging ⚡" : "On Battery";
+              el.innerHTML = "🔋 Battery<br>" + percent + "% • " + state;
+            }
+            update();
+            // Some browsers may not support these event handler properties;
+            // use addEventListener where available.
+            if ("onlevelchange" in b) {
+              b.onlevelchange = update;
+            } else {
+              b.addEventListener && b.addEventListener("levelchange", update);
+            }
+            if ("onchargingchange" in b) {
+              b.onchargingchange = update;
+            } else {
+              b.addEventListener && b.addEventListener("chargingchange", update);
+            }
+          })
+          .catch((err) => {
+            console.error("Battery error:", err);
+            el.innerHTML = "🔋 Battery<br>Unavailable";
+          });
+      } else {
+        el.innerHTML = "🔋 Battery<br>Unavailable";
+      }
+    }
+
+    function testGPS() {
+      const el = document.getElementById("gps");
+      if (navigator.geolocation && navigator.geolocation.getCurrentPosition) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            el.innerHTML =
+              "📍 GPS<br>" +
+              pos.coords.latitude +
+              "<br>" +
+              pos.coords.longitude;
+          },
+          (err) => {
+            console.warn("Geolocation error:", err);
+            el.innerHTML = "📍 GPS<br>Unavailable - " + (err.message || "Permission denied");
+          },
+          { timeout: 8000 }
+        );
+      } else {
+        el.innerHTML = "📍 GPS<br>Unavailable";
+      }
+    }
+
+    function testMotion() {
+      const el = document.getElementById("motion");
+      // Newer iOS requires a permission request for DeviceMotionEvent
+      if (typeof DeviceMotionEvent !== "undefined") {
+        const requestPerm =
+          typeof DeviceMotionEvent.requestPermission === "function"
+            ? DeviceMotionEvent.requestPermission()
+                .then((perm) => {
+                  if (perm === "granted") {
+                    addMotionListener();
+                  } else {
+                    el.innerHTML = "🧭 Motion<br>Permission denied";
+                  }
+                })
+                .catch((err) => {
+                  console.warn("DeviceMotion permission error:", err);
+                  // fallback to try adding listener without explicit permission
+                  addMotionListener();
+                })
+            : addMotionListener();
+      } else {
+        el.innerHTML = "🧭 Motion<br>Unavailable";
+      }
+
+      function addMotionListener() {
+        try {
+          window.addEventListener(
+            "devicemotion",
+            (e) => {
+              const ax = e.acceleration?.x ?? e.accelerationIncludingGravity?.x ?? 0;
+              const ay = e.acceleration?.y ?? e.accelerationIncludingGravity?.y ?? 0;
+              const az = e.acceleration?.z ?? e.accelerationIncludingGravity?.z ?? 0;
+              el.innerHTML = `🧭 Motion<br>X: ${ax.toFixed(2)}<br>Y: ${ay.toFixed(2)}<br>Z: ${az.toFixed(2)}`;
+            },
+            { passive: true }
+          );
+          // Provide an initial state until events come in
+          el.innerHTML = "🧭 Motion<br>Listening for sensor data...";
+        } catch (err) {
+          console.error("Motion listener error:", err);
+          el.innerHTML = "🧭 Motion<br>Unavailable";
+        }
+      }
+    }
+
+    function testCamera() {
+      const el = document.getElementById("camera");
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then((stream) => {
+            // stop tracks immediately to avoid keeping the camera on
+            stream.getTracks().forEach((t) => t.stop());
+            el.innerHTML = "📷 Camera<br>Accessible";
+          })
+          .catch((err) => {
+            console.warn("Camera error:", err);
+            el.innerHTML = "📷 Camera<br>Blocked or Unavailable";
+          });
+      } else {
+        el.innerHTML = "📷 Camera<br>Unavailable";
+      }
+    }
+
+    function testMic() {
+      const el = document.getElementById("microphone");
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((stream) => {
+            stream.getTracks().forEach((t) => t.stop());
+            el.innerHTML = "🎤 Microphone<br>Accessible";
+          })
+          .catch((err) => {
+            console.warn("Mic error:", err);
+            el.innerHTML = "🎤 Microphone<br>Blocked or Unavailable";
+          });
+      } else {
+        el.innerHTML = "🎤 Microphone<br>Unavailable";
+      }
+    }
+
+    function testSpeaker() {
+      const el = document.getElementById("speaker");
+      try {
+        const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+        // don't rely on autoplay; handle promise
+        audio
+          .play()
+          .then(() => {
+            el.innerHTML = "🔊 Speaker<br>Sound played";
+            // optionally pause and reset so it doesn't loop
+            setTimeout(() => {
+              audio.pause();
+              audio.currentTime = 0;
+            }, 1000);
+          })
+          .catch((err) => {
+            console.warn("Audio play error:", err);
+            el.innerHTML = "🔊 Speaker<br>Could not play sound (blocked by browser)";
+          });
+      } catch (err) {
+        console.error("Speaker error:", err);
+        el.innerHTML = "🔊 Speaker<br>Unavailable";
+      }
+    }
+
+    function cpuBenchmark() {
+      const el = document.getElementById("cpu");
+      // Run the benchmark asynchronously so the UI doesn't freeze immediately.
+      el.innerHTML = "🧠 CPU Benchmark<br>Running...";
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const start = performance.now();
+          let total = 0;
+          // Reduced iterations a bit to avoid long freezes on slower devices.
+          for (let i = 0; i < 2_000_000; i++) {
+            total += Math.sqrt(i);
+          }
+          const end = performance.now();
+          el.innerHTML = "🧠 CPU Benchmark<br>" + Math.round(end - start) + " ms";
+          resolve();
+        }, 20);
+      });
+    }
+
+    function gpuBenchmark() {
+      const el = document.getElementById("gpu");
+      el.innerHTML = "🎮 GPU Benchmark<br>Running...";
+      return new Promise((resolve) => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = 320;
+          canvas.height = 160;
+          const ctx = canvas.getContext && canvas.getContext("2d");
+          if (!ctx) {
+            el.innerHTML = "🎮 GPU Benchmark<br>Unavailable";
+            resolve();
+            return;
+          }
+          // draw many small rectangles
+          const start = performance.now();
+          for (let i = 0; i < 5000; i++) {
+            ctx.fillStyle = `rgba(${Math.floor(Math.random() * 255)},${Math.floor(
+              Math.random() * 255
+            )},${Math.floor(Math.random() * 255)},0.8)`;
+            ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 4, 4);
+          }
+          const end = performance.now();
+          el.innerHTML = "🎮 GPU Benchmark<br>" + Math.round(end - start) + " ms";
+          resolve();
+        } catch (err) {
+          console.error("GPU benchmark error:", err);
+          el.innerHTML = "🎮 GPU Benchmark<br>Error";
+          resolve();
+        }
+      });
+    }
+
+    function speedTest() {
+      const el = document.getElementById("speed");
+      el.innerHTML = "📶 Internet Speed<br>Running...";
+      const start = performance.now();
+      fetch("https://jsonplaceholder.typicode.com/posts", { cache: "no-store" })
+        .then((r) => r.json())
+        .then(() => {
+          const end = performance.now();
+          el.innerHTML = "📶 Internet Speed<br>" + Math.round(end - start) + " ms latency";
+        })
+        .catch((err) => {
+          console.warn("Speed test error:", err);
+          el.innerHTML = "📶 Internet Speed<br>Failed to fetch";
+        });
+    }
+  </script>
 </body>
 </html>
